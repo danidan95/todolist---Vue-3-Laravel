@@ -3,8 +3,12 @@ import './bootstrap';
 import { createApp } from 'vue'
 import App from './vue/app.vue'
 
-const app = createApp({})
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fas } from '@fortawesome/free-solid-svg-icons';
 
-app.component('welcome', App);
+library.add(fas)
 
-app.mount('#app')
+createApp(App)
+  .component('fa', FontAwesomeIcon)
+  .mount('#app')
