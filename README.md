@@ -17,7 +17,7 @@ Also have had documented from Vue3 and Laravel, PHP, Composer official Docs:
 
 Steps to start this project:
 
-1. clone repo: https://github.com/danidan95/neptodolist
+1. clone repo: https://github.com/danidan95/todolist---Vue-3-Laravel
 2. Run: npm install
 3. Run: npm run dev
 4. Access your localhost:8000 or 127.0.0.1:8000
