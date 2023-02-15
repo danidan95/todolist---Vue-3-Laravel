@@ -2,7 +2,7 @@ Hi guys,
 
 Dani Dan, here! ->  https://www.linkedin.com/in/daniel-dan-57b910179/
 
-This assignment was not done from scratch by me, i had also the help of other guys, which have done this kind of project way ahead of me to which i'm gratefull.
+This assignment was not done from scratch by me, i had also the indirect help of other guys, which have done this kind of project way ahead of me:
 
 -> https://github.com/baratahmed/Scrypster-Laravel-Vue-TODO-Completed
 
