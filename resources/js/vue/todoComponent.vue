@@ -1,7 +1,11 @@
 <template>
     <div class="container" style="max-width: 600px">
+      <div>
+        <label for="frontendOnly">Frontend only</label>
+        <input id="frontendOnly" type="checkbox" v-model="frontendOnly">
+      </div>
       <!-- Heading -->
-      <h2 class="text-center mt-5">My Vue Todo App</h2>
+      <h2 class="text-center mt-5">My Vue 3 - Laravel Todo App</h2>
   
       <!-- Input -->
       <div class="d-flex mt-5">
@@ -10,8 +14,9 @@
           v-model="task"
           placeholder="Enter task"
           class="w-100 form-control"
+          @keypress.enter="submitTask"
         />
-        <button class="btn btn-warning rounded-0" @click="submitTask" @keypress.enter="submitTask">
+        <button class="btn btn-warning rounded" @click="submitTask">
           SUBMIT
         </button>
       </div>
@@ -22,8 +27,9 @@
           <tr>
             <th scope="col">Task</th>
             <th scope="col" style="width: 120px">Status</th>
-            <th scope="col" class="text-center">#</th>
-            <th scope="col" class="text-center">#</th>
+            <th scope="col" style="width: 150px" class="text-center">Created at</th>
+            <th scope="col" class="text-center">Delete</th>
+            <th scope="col" class="text-center">Edit</th>
           </tr>
         </thead>
         <tbody>
@@ -47,6 +53,9 @@
               </span>
             </td>
             <td class="text-center">
+                {{ task.createdAt }}
+            </td>
+            <td class="text-center">
               <div @click="deleteTask(index)">
                 <span class="fa fa-trash pointer"></span>
               </div>
@@ -63,6 +72,7 @@
   </template>
   
   <script>
+  import axios from 'axios'
   export default {
     name: "Todo App",
     props: {
@@ -71,29 +81,65 @@
   
     data() {
       return {
+        frontendOnly: true,
         task: "",
         editedTask: null,
         statuses: ["to-do", "in-progress", "finished"],
   
         /* Status could be: 'to-do' / 'in-progress' / 'finished' */
-        tasks: [
-          {
+        tasks: [ ],
+      };
+    },
+
+    created() {
+      if (this.frontendOnly) {
+        this.tasks.push({
             name: "Demo Task 1",
             status: "to-do",
+            createdAt: "10-2-2023 12:23"
           },
           {
             name: "Demo Task 2",
             status: "in-progress",
+            createdAt: "11-1-2023 11:45"
           },
           {
             name: "Demo Task 3",
             status: "finished",
-          },
-        ],
-      };
+            createdAt: "10-12-2021 10:32"
+          },)
+      } else {
+        /**
+         * GET data from db with API
+         */
+         this.getTaskListFromDB;
+      }
     },
-  
+
+    watch: {
+      frontendOnly: function (val) {
+        if (val !== this.frontendOnly) {
+          this.frontendOnly = val;
+        }
+        console.log("frontendOnly ", this.frontendOnly)
+      }
+
+    },
+    
     methods: {
+      /**
+      * GET data from db with API
+      */
+      getTaskListFromDB() {
+                axios.get("/api/items")
+                .then(res => {
+                    this.tasks = res.data
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+      },
+
       /**
        * Capitalize first character
        */
@@ -105,24 +151,77 @@
        * Change status of task by index
        */
       changeStatus(index) {
-        let newIndex = this.statuses.indexOf(this.tasks[index].status);
-        if (++newIndex > 2) newIndex = 0;
-        this.tasks[index].status = this.statuses[newIndex];
+        if (this.frontendOnly) {
+          let newIndex = this.statuses.indexOf(this.tasks[index].status);
+          if (++newIndex > 2) newIndex = 0;
+          this.tasks[index].status = this.statuses[newIndex];
+        } else {
+          /**
+         * Update task from db with API call
+         */
+         axios.put("/api/item/"+ index, {
+                item: this.task
+            })
+            .then(res => {
+                if(res.status == 200){
+                    this.$emit('taskChanged')
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+            })
+        
+        }
+        
       },
   
       /**
        * Deletes task by index
        */
       deleteTask(index) {
-        this.tasks.splice(index, 1);
+        if (this.frontendOnly) {
+          this.tasks.splice(index, 1);
+        } else {
+          /**
+         * Delete task from db with API
+         */
+         axios.delete("/api/item/"+index)
+            .then(res => {
+                if(res.status == 200){
+                    this.$emit('Task deleted')
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+            })
+        }
+        
       },
   
       /**
        * Edit task
        */
       editTask(index) {
-        this.task = this.tasks[index].name;
-        this.editedTask = index;
+        if (this.frontendOnly) {
+          this.task = this.tasks[index].name;
+          this.editedTask = index;
+        } else {
+          /**
+         * Update task from db with API
+         */
+         axios.put("/api/item/"+ index, {
+                item: this.task
+            })
+            .then(res => {
+                if(res.status == 200){
+                    this.$emit('Task changed')
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+            })
+        }
+        
       },
   
       /**
@@ -138,10 +237,50 @@
           this.editedTask = null;
         } else {
           /* We need to add new task */
-          this.tasks.push({
-            name: this.task,
-            status: "todo",
-          });
+          const date = new Date();
+
+          let day = date.getDate();
+          let month = date.getMonth() + 1;
+          let year = date.getFullYear();
+          let hour = date.getHours();
+          let min = date.getMinutes();
+
+          let currentDate = `${day}-${month}-${year} ${hour}:${min}`;
+
+          if (this.frontendOnly) {
+            this.tasks.push({
+              name: this.task,
+              status: "todo",
+              createdAt: currentDate,
+            });
+
+          } else {
+            /**
+             * ADD new task in db via API
+             */
+            if(this.task === ""){
+                return;
+            } 
+
+            let newTask = {
+              name: this.task,
+              status: "todo",
+              createdAt: currentDate,
+            }
+
+            axios.post('/api/item/store',{item: newTask})
+            .then(response => {
+                if(response.status == 200){
+                    this.task = ''
+                    this.getTaskListFromDB();
+                }
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error)
+            })
+          }
+          
         }
   
         this.task = "";
@@ -165,5 +304,9 @@
   }
   .line-through {
     text-decoration: line-through;
+  }
+
+  .btn {
+    margin: 0 10px;
   }
   </style>
