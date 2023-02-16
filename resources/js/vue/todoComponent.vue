@@ -81,7 +81,7 @@
   
     data() {
       return {
-        frontendOnly: true,
+        frontendOnly: false,
         task: "",
         editedTask: null,
         statuses: ["to-do", "in-progress", "finished"],
@@ -92,8 +92,10 @@
     },
 
     created() {
-      if (this.frontendOnly) {
-        this.tasks.push({
+      let vm = this;
+
+      if (vm.frontendOnly) {
+        vm.tasks.push({
             name: "Demo Task 1",
             status: "to-do",
             createdAt: "10-2-2023 12:23"
@@ -112,7 +114,7 @@
         /**
          * GET data from db with API
          */
-         this.getTaskListFromDB;
+         vm.getTaskListFromDB();
       }
     },
 
@@ -131,9 +133,11 @@
       * GET data from db with API
       */
       getTaskListFromDB() {
+        console.log("GET tasks")
                 axios.get("/api/items")
                 .then(res => {
                     this.tasks = res.data
+                    console.log(res.data);
                 })
                 .catch(err => {
                     console.log(err)
@@ -265,16 +269,16 @@
             let newTask = {
               name: this.task,
               status: "todo",
-              createdAt: currentDate,
+              created_at: currentDate,
             }
 
             axios.post('/api/item/store',{item: newTask})
             .then(response => {
                 if(response.status == 200){
                     this.task = ''
-                    this.getTaskListFromDB();
                 }
                 console.log(response);
+                this.getTaskListFromDB();
             })
             .catch(error => {
                 console.log(error)
