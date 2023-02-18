@@ -1,8 +1,23 @@
 <template>
     <div class="container" style="max-width: 600px">
-      <div>
-        <label for="frontendOnly">Frontend only</label>
-        <input id="frontendOnly" type="checkbox" v-model="frontendOnly">
+      <div class="toggle-frontend-only">
+        Frontend only
+        <div v-if="frontendOnly" @click=" frontendOnly=!frontendOnly">
+          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+              x="0px" y="0px" width="30px" height="15px" viewBox="0 0 122.878 73.391" enable-background="new 0 0 122.878 73.391" xml:space="preserve">
+              <g>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M35.691,0h51.495c19.631,0,35.691,16.513,35.691,36.695l0,0 c0,20.182-16.062,36.695-35.691,36.695H35.691C16.062,73.391,0,56.877,0,36.695l0,0C0,16.513,16.061,0,35.691,0L35.691,0z M86.183,7.863c16.184,0,29.309,13.125,29.309,29.309S102.366,66.48,86.183,66.48S56.874,53.355,56.874,37.172 S69.999,7.863,86.183,7.863L86.183,7.863z"/>
+              </g>
+            </svg>
+        </div>
+
+        <div v-else @click=" frontendOnly=!frontendOnly">
+          <svg width="50px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="7" width="20" height="10" rx="5" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="7" cy="12" r="5" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
       </div>
       <!-- Heading -->
       <h2 class="text-center mt-5">My Vue 3 - Laravel Todo App</h2>
@@ -42,7 +57,7 @@
             <td>
               <span
                 class="pointer noselect"
-                @click="changeStatus(index)"
+                @click="changeStatus(index, task)"
                 :class="{
                   'text-danger': task.status === 'to-do',
                   'text-success': task.status === 'finished',
@@ -56,12 +71,12 @@
                 {{ task.createdAt }}
             </td>
             <td class="text-center">
-              <div @click="deleteTask(index)">
+              <div @click="deleteTask(task.id)">
                 <span class="fa fa-trash pointer"></span>
               </div>
             </td>
             <td class="text-center">
-              <div @click="editTask(index)">
+              <div @click="editTask(task.id)">
                 <p class="fa fa-pen pointer"></p>
               </div>
             </td>
@@ -96,19 +111,25 @@
 
       if (vm.frontendOnly) {
         vm.tasks.push({
+            id: "1",
             name: "Demo Task 1",
             status: "to-do",
-            createdAt: "10-2-2023 12:23"
+            createdAt: "10-2-2023 12:23",
+            updated_at: "10-2-2023 12:23"
           },
           {
+            id: "2",
             name: "Demo Task 2",
             status: "in-progress",
-            createdAt: "11-1-2023 11:45"
+            createdAt: "11-1-2023 11:45",
+            updated_at: "11-1-2023 11:45"
           },
           {
+            id: "3",
             name: "Demo Task 3",
             status: "finished",
-            createdAt: "10-12-2021 10:32"
+            createdAt: "10-12-2021 10:32",
+            updated_at: "10-12-2021 10:32"
           },)
       } else {
         /**
@@ -123,7 +144,6 @@
         if (val !== this.frontendOnly) {
           this.frontendOnly = val;
         }
-        console.log("frontendOnly ", this.frontendOnly)
       }
 
     },
@@ -154,18 +174,19 @@
       /**
        * Change status of task by index
        */
-      changeStatus(index) {
-        console.log('Change status', index);
-        if (this.frontendOnly) {
-          let newIndex = this.statuses.indexOf(this.tasks[index].status);
-          if (++newIndex > 2) newIndex = 0;
-          this.tasks[index].status = this.statuses[newIndex];
-        } else {
-          /**
+      changeStatus(index, task) {
+        let newIndex = this.statuses.indexOf(this.tasks[index].status);
+        if (++newIndex > 2) newIndex = 0;
+        this.tasks[index].status = this.statuses[newIndex];
+
+         /**
          * Update task from db with API call
          */
-         axios.put("/api/item/"+ index, {
-                item: this.task
+        if (!this.frontendOnly) {
+          task.status = this.statuses[newIndex];
+
+         axios.put("/api/item/"+ task.id, {
+                item: task
             })
             .then(res => {
                 if(res.status == 200){
@@ -175,7 +196,6 @@
             .catch(err=>{
                 console.log(err)
             })
-        
         }
         
       },
@@ -196,6 +216,7 @@
                 if(res.status == 200){
                     this.$emit('Task deleted')
                 }
+                this.getTaskListFromDB();
             })
             .catch(err=>{
                 console.log(err)
@@ -313,5 +334,12 @@
 
   .btn {
     margin: 0 10px;
+  }
+
+  .toggle-frontend-only {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
   }
   </style>
