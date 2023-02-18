@@ -40,21 +40,21 @@
       <table class="table table-bordered mt-5">
         <thead>
           <tr>
-            <th scope="col">Task</th>
-            <th scope="col" style="width: 120px">Status</th>
-            <th scope="col" style="width: 150px" class="text-center">Created at</th>
+            <th scope="col" class="text-center">Task</th>
+            <th scope="col" style="width: 120px" class="text-center">Status</th>
+            <th scope="col" style="width: 150px" class="text-center">Updated at</th>
             <th scope="col" class="text-center">Delete</th>
-            <th scope="col" class="text-center">Edit</th>
+            <th scope="col" style="width: 120px" class="text-center">Edit name</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(task, index) in tasks" :key="index">
-            <td>
+            <td class="text-center">
               <span :class="{ 'line-through': task.status === 'finished' }">
                 {{ task.name }}
               </span>
             </td>
-            <td>
+            <td class="text-center">
               <span
                 class="pointer noselect"
                 @click="changeStatus(index, task)"
@@ -68,7 +68,7 @@
               </span>
             </td>
             <td class="text-center">
-                {{ task.createdAt }}
+                {{ task.updated_at }}
             </td>
             <td class="text-center">
               <div @click="deleteTask(task.id)">
@@ -76,7 +76,7 @@
               </div>
             </td>
             <td class="text-center">
-              <div @click="editTask(task.id)">
+              <div @click="editTask(task)">
                 <p class="fa fa-pen pointer"></p>
               </div>
             </td>
@@ -96,7 +96,7 @@
   
     data() {
       return {
-        frontendOnly: false,
+        frontendOnly: true,
         task: "",
         editedTask: null,
         statuses: ["to-do", "in-progress", "finished"],
@@ -114,22 +114,22 @@
             id: "1",
             name: "Demo Task 1",
             status: "to-do",
-            createdAt: "10-2-2023 12:23",
-            updated_at: "10-2-2023 12:23"
+            createdAt: "10-2-2023 12:23:34",
+            updated_at: "10-2-2023 12:23:56"
           },
           {
             id: "2",
             name: "Demo Task 2",
             status: "in-progress",
-            createdAt: "11-1-2023 11:45",
-            updated_at: "11-1-2023 11:45"
+            createdAt: "11-1-2023 11:45:45",
+            updated_at: "11-1-2023 11:45:34"
           },
           {
             id: "3",
             name: "Demo Task 3",
             status: "finished",
-            createdAt: "10-12-2021 10:32",
-            updated_at: "10-12-2021 10:32"
+            createdAt: "10-12-2021 10:32:12",
+            updated_at: "10-12-2021 10:32:23"
           },)
       } else {
         /**
@@ -144,6 +144,11 @@
         if (val !== this.frontendOnly) {
           this.frontendOnly = val;
         }
+        
+        //IF we change from frontendONLY to backend also, updated the list from DB
+        if (val === false) {
+          this.getTaskListFromDB();
+        }
       }
 
     },
@@ -153,15 +158,13 @@
       * GET data from db with API
       */
       getTaskListFromDB() {
-        console.log("GET tasks")
-                axios.get("/api/items")
-                .then(res => {
-                    this.tasks = res.data
-                    console.log(res.data);
-                })
-                .catch(err => {
-                    console.log(err)
-                })
+        axios.get("/api/items")
+        .then(res => {
+            this.tasks = res.data;
+        })
+        .catch(err => {
+            console.log(err)
+        })
       },
 
       /**
@@ -178,10 +181,9 @@
         let newIndex = this.statuses.indexOf(this.tasks[index].status);
         if (++newIndex > 2) newIndex = 0;
         this.tasks[index].status = this.statuses[newIndex];
+        this.tasks[index].updated_at = this.getCurrentDate();
 
-         /**
-         * Update task from db with API call
-         */
+         /*Update task from db with API call */
         if (!this.frontendOnly) {
           task.status = this.statuses[newIndex];
 
@@ -204,9 +206,19 @@
        * Deletes task by index
        */
       deleteTask(index) {
-        console.log('Delete task', index);
-        if (this.frontendOnly) {
-          this.tasks.splice(index, 1);
+        let vm = this;
+
+        if (vm.frontendOnly) {
+          let allTasks = [...vm.tasks];
+
+          let filtered_arr = allTasks.filter( function(val) {
+              if (val.id !== index ) {
+                return val;
+              }
+            })
+          
+          //Update the list in data.
+          vm.tasks = filtered_arr;
         } else {
           /**
          * Delete task from db with API
@@ -214,9 +226,9 @@
          axios.delete("/api/item/"+index)
             .then(res => {
                 if(res.status == 200){
-                    this.$emit('Task deleted')
+                  vm.$emit('Task deleted')
                 }
-                this.getTaskListFromDB();
+                vm.getTaskListFromDB();
             })
             .catch(err=>{
                 console.log(err)
@@ -228,56 +240,64 @@
       /**
        * Edit task
        */
-      editTask(index) {
-        if (this.frontendOnly) {
-          this.task = this.tasks[index].name;
-          this.editedTask = index;
-        } else {
-          /**
-         * Update task from db with API
-         */
-         axios.put("/api/item/"+ index, {
-                item: this.task
-            })
-            .then(res => {
-                if(res.status == 200){
-                    this.$emit('Task changed')
-                }
-            })
-            .catch(err=>{
-                console.log(err)
-            })
-        }
-        
+      editTask(taskToEdit) {
+        this.task = taskToEdit.name;
+        this.editedTask = taskToEdit;        
       },
   
-      /**
-       * Add / Update task
-       */
-      submitTask() {
-        if (this.task.length === 0) return;
-  
-        /* We need to update the task */
-        if (this.editedTask != null) {
-          this.tasks[this.editedTask].name = this.task;
-          this.editedTask = null;
-        } else {
-          /* We need to add new task */
-          const date = new Date();
+      getCurrentDate: function() {
+        let date = new Date();
 
           let day = date.getDate();
           let month = date.getMonth() + 1;
           let year = date.getFullYear();
           let hour = date.getHours();
           let min = date.getMinutes();
+          let sec = date.getSeconds();
 
-          let currentDate = `${day}-${month}-${year} ${hour}:${min}`;
+          return `${day}-${month}-${year} ${hour}:${min}:${sec}`;
+      },
 
-          if (this.frontendOnly) {
-            this.tasks.push({
-              name: this.task,
+      /**
+       * Add / Update task
+       */
+      submitTask() {
+        let vm = this;
+
+        if (vm.task.length === 0) return;
+
+        /* We need to update the task */
+        if (vm.editedTask != null) {
+          
+          vm.editedTask.name = vm.task;
+          vm.editedTask.updated_at = vm.getCurrentDate();
+
+          /** Update task from db with API */
+         if (!vm.frontendOnly) { 
+          axios.put("/api/item/"+ vm.editedTask.id, {
+                  item: vm.editedTask
+              })
+              .then(res => {
+                  if(res.status == 200){
+                    vm.$emit('Task changed');
+                    vm.getTaskListFromDB();
+                  }
+              })
+              .catch(err=>{
+                  console.log(err)
+              })
+          }
+
+          vm.editedTask = null;
+        } else {
+          /* We need to add new task */
+
+          if (vm.frontendOnly) {
+            vm.tasks.push({
+              name: vm.task,
               status: "todo",
-              createdAt: currentDate,
+              created_at: vm.getCurrentDate(),
+              updated_at: vm.getCurrentDate(),
             });
 
           } else {
@@ -291,7 +311,8 @@
             let newTask = {
               name: this.task,
               status: "todo",
-              created_at: currentDate,
+              created_at: vm.getCurrentDate(),
+              updated_at: vm.getCurrentDate(),
             }
 
             axios.post('/api/item/store',{item: newTask})
@@ -299,7 +320,6 @@
                 if(response.status == 200){
                     this.task = ''
                 }
-                console.log(response);
                 this.getTaskListFromDB();
             })
             .catch(error => {
