@@ -59,7 +59,7 @@
                 class="pointer noselect"
                 @click="changeStatus(index, task)"
                 :class="{
-                  'text-danger': task.status === 'to-do',
+                  'text-danger': task.status === 'To-do' ,
                   'text-success': task.status === 'finished',
                   'text-warning': task.status === 'in-progress',
                 }"
@@ -99,7 +99,7 @@
         frontendOnly: false,
         task: "",
         editedTask: null,
-        statuses: ["to-do", "in-progress", "finished"],
+        statuses: ["To-do", "in-progress", "finished"],
   
         /* Status could be: 'to-do' / 'in-progress' / 'finished' */
         tasks: [ ],
@@ -113,7 +113,7 @@
         vm.tasks.push({
             id: "1",
             name: "Demo Task 1",
-            status: "to-do",
+            status: "To-do",
             createdAt: "10-2-2023 12:23:34",
             updated_at: "10-2-2023 12:23:56"
           },
@@ -178,10 +178,11 @@
        * Change status of task by index
        */
       changeStatus(index, task) {
-        let newIndex = this.statuses.indexOf(this.tasks[index].status);
-        if (++newIndex > 2) newIndex = 0;
-        this.tasks[index].status = this.statuses[newIndex];
-        this.tasks[index].updated_at = this.getCurrentDate();
+
+          let newIndex = this.statuses.indexOf(this.tasks[index].status);
+          if (++newIndex > 2) newIndex = 0;
+          this.tasks[index].status = this.statuses[newIndex];
+          this.tasks[index].updated_at = this.getCurrentDate();
 
          /*Update task from db with API call */
         if (!this.frontendOnly) {
@@ -295,7 +296,7 @@
           if (vm.frontendOnly) {
             vm.tasks.push({
               name: vm.task,
-              status: "todo",
+              status: "To-do",
               created_at: vm.getCurrentDate(),
               updated_at: vm.getCurrentDate(),
             });
@@ -310,7 +311,7 @@
 
             let newTask = {
               name: this.task,
-              status: "todo",
+              status: "To-do",
               created_at: vm.getCurrentDate(),
               updated_at: vm.getCurrentDate(),
             }
