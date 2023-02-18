@@ -19,5 +19,7 @@ Steps to start this project:
 
 1. clone repo: https://github.com/danidan95/todolist---Vue-3-Laravel
 2. Run: npm install
-3. Run: npm run dev
-4. Access your localhost:8000 or 127.0.0.1:8000
+3. setup a local db named "neptodolist" and a table named "tasklist" and WITHOUT password (see .env for details)
+4. Start your local DB (xampp)
+5. Run: npm run dev
+6. Access your localhost:8000 or 127.0.0.1:8000
