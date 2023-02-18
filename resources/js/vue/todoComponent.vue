@@ -155,6 +155,7 @@
        * Change status of task by index
        */
       changeStatus(index) {
+        console.log('Change status', index);
         if (this.frontendOnly) {
           let newIndex = this.statuses.indexOf(this.tasks[index].status);
           if (++newIndex > 2) newIndex = 0;
@@ -183,6 +184,7 @@
        * Deletes task by index
        */
       deleteTask(index) {
+        console.log('Delete task', index);
         if (this.frontendOnly) {
           this.tasks.splice(index, 1);
         } else {
@@ -232,7 +234,6 @@
        * Add / Update task
        */
       submitTask() {
-        console.log("SUBMIT requested");
         if (this.task.length === 0) return;
   
         /* We need to update the task */
