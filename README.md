@@ -2,9 +2,9 @@ Hi guys,
 
 Dani Dan, here! ->  https://www.linkedin.com/in/daniel-dan-57b910179/
 
-There are 2 ways to experience this particular app:
-1. Frontend ONLY (Vue 3)
-2. Frontend (Vue 3) + Backend (Laravel 9) + DB (MySQL)
+There are 2 ways to experience this particular app: 
+1. Frontend ONLY (Vue 3) -> (if you don't want to make a table and start and mysql)
+2. Default UX: Frontend (Vue 3) + Backend (Laravel 9) + DB (MySQL)
 
 Steps to start this project:
 

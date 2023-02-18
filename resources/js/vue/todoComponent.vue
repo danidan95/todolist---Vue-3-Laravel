@@ -96,7 +96,7 @@
   
     data() {
       return {
-        frontendOnly: true,
+        frontendOnly: false,
         task: "",
         editedTask: null,
         statuses: ["to-do", "in-progress", "finished"],
