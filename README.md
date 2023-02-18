@@ -9,11 +9,11 @@ There are 2 ways to experience this particular app:
 Steps to start this project:
 
 1. clone repo: https://github.com/danidan95/todolist---Vue-3-Laravel
-2. Run: npm install
+2. Run in project directory: "npm install"
 3. Start your MySQL DB (xampp)
-4. Run: php artisan migrate Make migration to Item , to connect it to your database and make the corresponding tables .
-        if step 4 does not work set up manually a local db named "neptodolist" and a table named "tasklist" and WITHOUT password (see .env for details AND see Model <resources\assets\db_model_structure.png>
-5. Run: npm run dev
+4. Run in project directory: "php artisan migrate"  -----> (Make migration to Item , to connect it to your database and make the corresponding tables)
+       -->  if step 4 does not work set up manually a local db named "neptodolist" and a table named "tasklist" and WITHOUT password (see .env for details AND see Model <resources\assets\db_model_structure.png>
+5. Run in project directory: "npm run dev"
 6. Access your localhost:8000 or 127.0.0.1:8000
 
 #DOCS / Refferences
