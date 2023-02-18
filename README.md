@@ -34,3 +34,5 @@ Also have had documented from Vue3 and Laravel, PHP, Composer official Docs:
 -> https://vuejs.org/guide/introduction.html
 -> https://getcomposer.org/download/
 -> https://vegibit.com/getting-your-database-set-up-for-use-with-laravel/
+
+---------------------------------------------------------------------- THE END ------------------------------------------------------------------------------------
